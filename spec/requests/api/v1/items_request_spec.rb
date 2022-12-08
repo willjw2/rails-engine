@@ -77,7 +77,23 @@ describe "Items API" do
     expect(item[:attributes]).to have_key(:unit_price)
     expect(item[:attributes][:unit_price]).to be_a(Float)
   end
-  it "can update an item" do
-    
+  it "can update an existing item" do
+    id = create(:item).id
+    previous_name = Item.last.name
+    item_params = {
+                    "name": "value1",
+                    "description": "value2",
+                    "unit_price": 100.99,
+                  }
+    headers = {"CONTENT_TYPE" => "application/json"}
+
+    patch "/api/v1/items/#{id}", headers: headers, params: JSON.generate({item: item_params})
+    item = Item.find_by(id: id)
+    # require "pry"; binding.pry
+    expect(response).to be_successful
+    expect(item.name).to_not eq(previous_name)
+    expect(item.name).to eq("value1")
+    expect(item.description).to eq("value2")
+    expect(item.unit_price).to eq(100.99)
   end
 end

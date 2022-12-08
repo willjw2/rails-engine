@@ -7,7 +7,10 @@ class Api::V1::ItemsController < ApplicationController
   end
   def create
     # require "pry"; binding.pry
-    render json: ItemSerializer.create_item(Item.create(item_params))
+    render json: ItemSerializer.format_create(Item.create(item_params))
+  end
+  def update
+    render json: ItemSerializer.format_update(Item.update(params[:id], item_params))
   end
 
 private
