@@ -16,8 +16,6 @@ describe "Merchants API" do
       expect(merchant[:attributes][:name]).to be_a(String)
       expect(merchant[:type]).to eq("merchant")
     end
-
-    # require "pry"; binding.pry
   end
   it "can get one merchant by its id" do
     id = create(:merchant).id
@@ -32,5 +30,4 @@ describe "Merchants API" do
     expect(merchant[:data][:type]).to eq("merchant")
     expect(merchant[:data][:attributes][:name]).to be_a(String)
   end
-
 end
