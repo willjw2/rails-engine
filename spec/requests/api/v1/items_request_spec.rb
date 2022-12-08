@@ -96,4 +96,7 @@ describe "Items API" do
     expect(item.description).to eq("value2")
     expect(item.unit_price).to eq(100.99)
   end
+  it "can destroy an existing item" do
+    
+  end
 end
