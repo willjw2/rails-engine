@@ -32,4 +32,5 @@ describe "Merchants API" do
     expect(merchant[:data][:type]).to eq("merchant")
     expect(merchant[:data][:attributes][:name]).to be_a(String)
   end
+
 end
