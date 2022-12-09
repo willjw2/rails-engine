@@ -17,7 +17,12 @@ class Api::V1::ItemsController < ApplicationController
     render json: ItemSerializer.format_item_merchant_id(Item.create!(item_params)), status: 201
   end
   def update
-    render json: ItemSerializer.format_item_merchant_id(Item.update(params[:id], item_params))
+    # require "pry"; binding.pry
+    if Item.exists?(params[:id]) && (Merchant.exists?(params[:item][:merchant_id]) || params[:item][:merchant_id] == nil)
+      render json: ItemSerializer.format_item_merchant_id(Item.update(params[:id], item_params))
+    else
+      render json: {"errors": "Invalid item or merchant id"}, status: 404
+    end
   end
   def destroy
     render json: Item.delete(params[:id])
