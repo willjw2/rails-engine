@@ -64,11 +64,42 @@ describe "Merchants API" do
       merchant1 = create(:merchant, name: "Will")
       merchant2 = create(:merchant, name: "Akhil")
       merchant3 = create(:merchant, name: "Dustin")
-      merchant4 = create(:merchant, name: "Rat")
+      merchant4 = create(:merchant, name: "Z WILL")
 
       get "/api/v1/merchants/find?name=Will"
 
       expect(response).to be_successful
+
+      merchant = JSON.parse(response.body, symbolize_names: true)
+
+      expect(merchant[:data][:id]).to be_a(String)
+      expect(merchant[:data][:type]).to eq("merchant")
+      expect(merchant[:data][:attributes][:name]).to eq("Will")
+    end
+    it "returns an error if name parameter is empty" do
+      merchant1 = create(:merchant, name: "Will")
+      merchant2 = create(:merchant, name: "Akhil")
+      merchant3 = create(:merchant, name: "Dustin")
+      merchant4 = create(:merchant, name: "Z WILL")
+
+      get "/api/v1/merchants/find?name="
+
+      expect(response.status).to eq(400)
+      json = JSON.parse(response.body, symbolize_names: true)
+      expect(json[:errors]).to eq("name parameter cannot be empty")
+      # require "pry"; binding.pry
+    end
+    it "returns an error if parameter is missing" do
+      merchant1 = create(:merchant, name: "Will")
+      merchant2 = create(:merchant, name: "Akhil")
+      merchant3 = create(:merchant, name: "Dustin")
+      merchant4 = create(:merchant, name: "Z WILL")
+
+      get "/api/v1/merchants/find"
+
+      expect(response.status).to eq(400)
+      json = JSON.parse(response.body, symbolize_names: true)
+      expect(json[:errors]).to eq("parameter cannot be missing")
     end
   end
 end

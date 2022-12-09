@@ -14,7 +14,7 @@ class Api::V1::ItemsController < ApplicationController
   end
   def create
     # require "pry"; binding.pry
-    render json: ItemSerializer.format_item_merchant_id(Item.create(item_params)), status: 201
+    render json: ItemSerializer.format_item_merchant_id(Item.create!(item_params)), status: 201
   end
   def update
     render json: ItemSerializer.format_item_merchant_id(Item.update(params[:id], item_params))
