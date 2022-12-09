@@ -97,6 +97,22 @@ describe "Items API" do
     expect(item.description).to eq("value2")
     expect(item.unit_price).to eq(100.99)
   end
+  it "returns an error if item or merchant id is invalid when updating" do
+    id = create(:item).id
+    previous_name = Item.last.name
+    item_params = {
+                    "name": "value1",
+                    "description": "value2",
+                    "unit_price": 100.99,
+                    "merchant_id": 209
+                  }
+    headers = {"CONTENT_TYPE" => "application/json"}
+
+    patch "/api/v1/items/#{id}", headers: headers, params: JSON.generate({item: item_params})
+
+    json = JSON.parse(response.body, symbolize_names: true)
+    expect(json[:errors]).to eq("Invalid item or merchant id")
+  end
   it "can destroy an existing item" do
     item = create(:item)
 
