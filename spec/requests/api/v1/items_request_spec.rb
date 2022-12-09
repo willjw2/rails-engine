@@ -142,10 +142,22 @@ describe "Items API" do
 
       get "/api/v1/items/find_all?min_price=3.5"
       items = JSON.parse(response.body, symbolize_names: true)[:data]
-      require "pry"; binding.pry
+      # require "pry"; binding.pry
       expect(response).to be_successful
       expect(items.count).to eq(3)
     end
-    
+    it "can find all items that are less than or equal to a maximum price search term" do
+      create(:item, unit_price: 1.50)
+      create(:item, unit_price: 2.00)
+      create(:item, unit_price: 3.50)
+      create(:item, unit_price: 4.00)
+      create(:item, unit_price: 5.01)
+
+      get "/api/v1/items/find_all?max_price=3.0"
+      items = JSON.parse(response.body, symbolize_names: true)[:data]
+      # require "pry"; binding.pry
+      expect(response).to be_successful
+      expect(items.count).to eq(2)
+    end
   end
 end
