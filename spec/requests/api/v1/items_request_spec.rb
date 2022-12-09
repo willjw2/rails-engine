@@ -101,10 +101,9 @@ describe "Items API" do
 
     expect(Item.count).to eq(1)
 
-    delete "/api/v1/items/#{item.id}"
+    expect {delete "/api/v1/items/#{item.id}"}.to change(Item, :count).by(-1)
 
     expect(response).to be_successful
-    expect(Item.count).to eq(0)
-    expect(Item.find(item.id)).to raise_error(ActiveRecord::RecordNotFound)
+    expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
   end
 end
