@@ -4,17 +4,17 @@ class Api::V1::ItemsController < ApplicationController
     if params[:merchant_id]
       merchant = Merchant.find(params[:merchant_id])
       merchant_items = merchant.items
-      render json: ItemSerializer.format_items(merchant_items)
+      render json: ItemSerializer.format_items_merchant_id(merchant_items)
     else
-      render json: ItemSerializer.format_items(Item.all)
+      render json: ItemSerializer.format_items_merchant_id(Item.all)
     end
   end
   def show
-    render json: ItemSerializer.format_item(Item.find(params[:id]))
+    render json: ItemSerializer.format_item_merchant_id(Item.find(params[:id]))
   end
   def create
     # require "pry"; binding.pry
-    render json: ItemSerializer.format_item_merchant_id(Item.create(item_params))
+    render json: ItemSerializer.format_item_merchant_id(Item.create(item_params)), status: 201
   end
   def update
     render json: ItemSerializer.format_item_merchant_id(Item.update(params[:id], item_params))

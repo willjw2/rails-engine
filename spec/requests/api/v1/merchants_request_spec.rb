@@ -12,7 +12,7 @@ describe "Merchants API" do
     expect(merchants[:data].count).to eq(3)
 
     merchants[:data].each do |merchant|
-      expect(merchant[:id]).to be_an(Integer)
+      expect(merchant[:id]).to be_a(String)
       expect(merchant[:attributes][:name]).to be_a(String)
       expect(merchant[:type]).to eq("merchant")
     end
@@ -26,7 +26,7 @@ describe "Merchants API" do
 
     expect(response).to be_successful
 
-    expect(merchant[:data][:id]).to be_an(Integer)
+    expect(merchant[:data][:id]).to be_a(String)
     expect(merchant[:data][:type]).to eq("merchant")
     expect(merchant[:data][:attributes][:name]).to be_a(String)
   end
@@ -46,7 +46,7 @@ describe "Merchants API" do
 
     items[:data].each do |item|
       expect(item).to have_key(:id)
-      expect(item[:id]).to be_an(Integer)
+      expect(item[:id]).to be_a(String)
       expect(item[:id]).to_not eq(other_item)
 
       expect(item[:attributes]).to have_key(:name)
@@ -57,6 +57,18 @@ describe "Merchants API" do
 
       expect(item[:attributes]).to have_key(:unit_price)
       expect(item[:attributes][:unit_price]).to be_a(Float)
+    end
+  end
+  context "can find one merchant that match a search term" do
+    it "can find one merchant by a name parameter" do
+      merchant1 = create(:merchant, name: "Will")
+      merchant2 = create(:merchant, name: "Akhil")
+      merchant3 = create(:merchant, name: "Dustin")
+      merchant4 = create(:merchant, name: "Rat")
+
+      get "/api/v1/merchants/find?name=Will"
+
+      expect(response).to be_successful
     end
   end
 end
