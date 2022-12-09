@@ -10,6 +10,11 @@ class Item < ApplicationRecord
     # require "pry"; binding.pry
     where("unit_price >= ?", min_price).order(:unit_price)
     # where("unit_price >= #{min_price}").order(:unit_price)
-
+  end
+  def self.find_max_price(max_price)
+    where("unit_price <= ?", max_price).order(:unit_price)
+  end
+  def self.find_range(min_price, max_price)
+    where(unit_price: min_price.to_f..max_price.to_f)
   end
 end

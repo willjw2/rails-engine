@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe "Items API" do
-  xit "sends all records of items" do
+  it "sends all records of items" do
     create_list(:item, 3)
     get '/api/v1/items'
 
@@ -14,7 +14,8 @@ describe "Items API" do
 
     items[:data].each do |item|
       expect(item).to have_key(:id)
-      expect(item[:id]).to be_an(Integer)
+      # require "pry"; binding.pry
+      expect(item[:id]).to be_a(String)
 
       expect(item[:attributes]).to have_key(:name)
       expect(item[:attributes][:name]).to be_a(String)
@@ -26,7 +27,7 @@ describe "Items API" do
       expect(item[:attributes][:unit_price]).to be_a(Float)
     end
   end
-  xit "can get one item by its id" do
+  it "can get one item by its id" do
     id = create(:item).id
 
     get "/api/v1/items/#{id}"
@@ -34,7 +35,7 @@ describe "Items API" do
     item = JSON.parse(response.body, symbolize_names: true)[:data]
 
     expect(item).to have_key(:id)
-    expect(item[:id]).to be_an(Integer)
+    expect(item[:id]).to be_a(String)
 
     expect(item[:attributes]).to have_key(:name)
     expect(item[:attributes][:name]).to be_a(String)
@@ -45,7 +46,7 @@ describe "Items API" do
     expect(item[:attributes]).to have_key(:unit_price)
     expect(item[:attributes][:unit_price]).to be_a(Float)
   end
-  xit "can create a new item" do
+  it "can create a new item" do
     id = create(:merchant).id
     item_params = ({
                     name: "Test Item",
@@ -66,7 +67,7 @@ describe "Items API" do
 
     item = JSON.parse(response.body, symbolize_names: true)[:data]
     expect(item).to have_key(:id)
-    expect(item[:id]).to be_an(Integer)
+    expect(item[:id]).to be_a(String)
 
     expect(item[:attributes]).to have_key(:name)
     expect(item[:attributes][:name]).to be_a(String)
@@ -77,7 +78,7 @@ describe "Items API" do
     expect(item[:attributes]).to have_key(:unit_price)
     expect(item[:attributes][:unit_price]).to be_a(Float)
   end
-  xit "can update an existing item" do
+  it "can update an existing item" do
     id = create(:item).id
     previous_name = Item.last.name
     item_params = {
@@ -96,7 +97,7 @@ describe "Items API" do
     expect(item.description).to eq("value2")
     expect(item.unit_price).to eq(100.99)
   end
-  xit "can destroy an existing item" do
+  it "can destroy an existing item" do
     item = create(:item)
 
     expect(Item.count).to eq(1)
@@ -106,7 +107,7 @@ describe "Items API" do
     expect(response).to be_successful
     expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
   end
-  xit "can return the merchant associated with an item" do
+  it "can return the merchant associated with an item" do
     item = create(:item)
     merchant = Merchant.find_by(id: item.merchant_id)
 
@@ -115,7 +116,7 @@ describe "Items API" do
 
     expect(response).to be_successful
 
-    expect(merchant[:data][:id]).to be_an(Integer)
+    expect(merchant[:data][:id]).to be_a(String)
     expect(merchant[:data][:type]).to eq("merchant")
     expect(merchant[:data][:attributes][:name]).to be_a(String)
   end
@@ -142,10 +143,71 @@ describe "Items API" do
 
       get "/api/v1/items/find_all?min_price=3.5"
       items = JSON.parse(response.body, symbolize_names: true)[:data]
-      require "pry"; binding.pry
+      # require "pry"; binding.pry
       expect(response).to be_successful
       expect(items.count).to eq(3)
     end
-    
+    it "can find all items that are less than or equal to a maximum price search term" do
+      create(:item, unit_price: 1.50)
+      create(:item, unit_price: 2.00)
+      create(:item, unit_price: 3.50)
+      create(:item, unit_price: 4.00)
+      create(:item, unit_price: 5.01)
+
+      get "/api/v1/items/find_all?max_price=3.0"
+      items = JSON.parse(response.body, symbolize_names: true)[:data]
+      # require "pry"; binding.pry
+      expect(response).to be_successful
+      expect(items.count).to eq(2)
+    end
+    it "can find all items that are between a min and max price search term" do
+      create(:item, unit_price: 1.50)
+      create(:item, unit_price: 2.00)
+      create(:item, unit_price: 3.50)
+      create(:item, unit_price: 4.00)
+      create(:item, unit_price: 5.01)
+
+      get "/api/v1/items/find_all?max_price=4.0&min_price=2.00"
+      items = JSON.parse(response.body, symbolize_names: true)[:data]
+      # require "pry"; binding.pry
+      expect(response).to be_successful
+      expect(items.count).to eq(3)
+    end
+    it "will return an error if both a price and a name search term is sent" do
+      create(:item, unit_price: 1.50)
+      create(:item, unit_price: 2.00)
+      create(:item, unit_price: 3.50)
+      create(:item, unit_price: 4.00)
+      create(:item, unit_price: 5.01)
+      get "/api/v1/items/find_all?max_price=4.0&min_price=2.00&name=test"
+      expect(response.status).to eq(400)
+      json = JSON.parse(response.body, symbolize_names: true)
+      # require "pry"; binding.pry
+      expect(json[:errors]).to eq("Cannot send both a price parameter and a name")
+    end
+    it "will return an error if max_price is less than 0" do
+      create(:item, unit_price: 1.50)
+      create(:item, unit_price: 2.00)
+      create(:item, unit_price: 3.50)
+      create(:item, unit_price: 4.00)
+      create(:item, unit_price: 5.01)
+      get "/api/v1/items/find_all?max_price=-4.0"
+      expect(response.status).to eq(400)
+      json = JSON.parse(response.body, symbolize_names: true)
+      # require "pry"; binding.pry
+      expect(json[:errors]).to eq("max_price cannot be less than 0")
+    end
+    it "will return an error if min_price is less than 0" do
+      create(:item, unit_price: 1.50)
+      create(:item, unit_price: 2.00)
+      create(:item, unit_price: 3.50)
+      create(:item, unit_price: 4.00)
+      create(:item, unit_price: 5.01)
+      get "/api/v1/items/find_all?min_price=-4.0"
+      expect(response.status).to eq(400)
+      json = JSON.parse(response.body, symbolize_names: true)
+      # require "pry"; binding.pry
+      expect(json[:errors]).to eq("min_price cannot be less than 0")
+    end
   end
 end
