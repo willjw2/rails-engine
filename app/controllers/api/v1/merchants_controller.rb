@@ -4,7 +4,13 @@ class Api::V1::MerchantsController < ApplicationController
     render json: MerchantSerializer.format_merchants(Merchant.all)
   end
   def show
-    render json: MerchantSerializer.format_merchant(Merchant.find(params[:id]))
+    # require "pry"; binding.pry
+    if params[:item_id]
+      item =  Item.find(params[:item_id])
+      render json: MerchantSerializer.format_merchant(Merchant.find(item.merchant_id))
+    else
+      render json: MerchantSerializer.format_merchant(Merchant.find(params[:id]))
+    end
   end
 end
 
