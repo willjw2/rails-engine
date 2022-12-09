@@ -31,11 +31,12 @@ describe "Merchants API" do
     expect(merchant[:data][:attributes][:name]).to be_a(String)
   end
   it "can return the items associated with a merchant" do
-    id = create(:merchant).id
+    id = create(:merchant)
+    other_item = create(:item).id
 
     3.times { create(:item, merchant: id) }
 
-    get "/api/v1/merchants/#{id}/items"
+    get "/api/v1/merchants/#{id.id}/items"
 
     expect(response).to be_successful
 
@@ -46,6 +47,7 @@ describe "Merchants API" do
     items[:data].each do |item|
       expect(item).to have_key(:id)
       expect(item[:id]).to be_an(Integer)
+      expect(item[:id]).to_not eq(other_item)
 
       expect(item[:attributes]).to have_key(:name)
       expect(item[:attributes][:name]).to be_a(String)
